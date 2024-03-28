@@ -1,5 +1,7 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <time.h>
 
 static char *months[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
 
@@ -20,15 +22,32 @@ static void easter(int year, int *month, int *day)
    return;
 }
 
+static int year(void)
+{
+   time_t now;
+   struct tm *ltime;
+
+   if ((now = time(NULL)) == ((time_t) -1)) {
+      perror("easter: couldn't get time");
+      exit(EXIT_FAILURE);
+   }
+
+   ltime = localtime(&now);
+   return ltime->tm_year + 1900;
+}
+
 int main(int argc, char *argv[])
 {
    int month, day;
    if (1 == argc) {
-      puts("easter YEAR");
-   } else {
+      easter(year(), &month, &day);
+   } else if (isdigit(argv[1][0])) {
       easter(atoi(argv[1]), &month, &day);
-      printf("%s %d\n", months[month - 1], day);
+   } else {
+      puts("easter YEAR");
+      return 0;
    }
 
+   printf("%s %d\n", months[month - 1], day);
    return 0;
 }
